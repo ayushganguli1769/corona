@@ -20,6 +20,11 @@ from firebase_admin import credentials, firestore,db
 import os, sys
 import json
 import ast
+"""
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
+from django.contrib.gis.geos import Point
+"""
 dirname, filename = os.path.split(os.path.abspath(sys.argv[0]))
 covid = os.path.join(dirname, "covid.json")
 cred = credentials.Certificate(covid)
@@ -81,8 +86,9 @@ def inputLocation(request):
     serializer = locationSerializer(data= request.data)
     print(request.data)
     if serializer.is_valid():
-        last_date = datetime.now()
-        new_location = locationDetail(user = user,latitude = request.data['latitude'], longitude = request.data['longitude'],last_fetched = last_date)
+        last_date = datetime.now() 
+        location_point = Point(float(request.data['latitude']),float(request.data['latitude']))
+        new_location = locationDetail(user = user,location = location_point, latitude = request.data['latitude'], longitude = request.data['longitude'],last_fetched = last_date)
         #please manage the server time setting later 
         new_location.save()
         data['success'] = "new location saved"
