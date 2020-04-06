@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['tuhina840.pythonanywhere.com','127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'background_task',
     'corsheaders',#new stuff
     'django.contrib.admin',
     'django.contrib.auth',
@@ -138,6 +139,7 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
@@ -145,3 +147,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')#server side
 MEDIA_URL = '/media/'#client side
 # Activate Django-Heroku.
 LOGOUT_REDIRECT_URL = '/'
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

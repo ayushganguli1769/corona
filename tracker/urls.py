@@ -35,4 +35,5 @@ urlpatterns = [
     path('template_search_user/<str:username>/',views.template_search_user,name="template_search_user"),
     path('search/',views.search_page,name="search_page"),
     path('user_individual_track/',views.user_individual_track, name="user_individual_track"),
+    path('trace_contact/<int:user_id>/',views.contactTracingHelper,name = "contactTracingHelper")
 ]

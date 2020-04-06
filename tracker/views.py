@@ -21,6 +21,7 @@ import pytz
 from django.utils import timezone
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timedelta
 
 ####firebase
 import firebase_admin
@@ -177,36 +178,6 @@ def test(request):
 @api_view(['POST','GET'])
 @permission_classes([IsAuthenticated])
 def table(request):
-    global R
-    data = []
-    all_user = extendedUser.objects.filter(~Q(status = 5))
-    my_user = extendedUser.objects.get(user = request.user)
-    for extend_user in all_user:
-        try:
-            if extend_user.user != request.user:
-                location_detail = locationDetail.objects.filter(user = extend_user.user).last()
-                extend_user_latitude = location_detail.latitude
-                extend_user_longitude = location_detail.longitude
-                extend_user_last_fetch = location_detail.last_fetched
-        except:
-            extend_user_latitude = None
-            extend_user_longitude = None
-            extend_user_last_fetch = None
-        user_coordinates = {'channel_id':extend_user.user.id,'status':extend_user.status,'username':extend_user.user.username,'latitude':extend_user_latitude,'longitude':extend_user_longitude,'last_fetch':str(extend_user_last_fetch)}
-        print(extend_user.user.username + " id = " +str(extend_user.user.id))
-        if extend_user_latitude != None and extend_user_longitude != None:
-            data.append(user_coordinates)
-    try:
-        user_location_detail = locationDetail.objects.filter(user = request.user).last()
-        user_latitude = user_location_detail.latitude
-        user_longitude = user_location_detail.longitude
-        user_last_fetch = user_location_detail.last_fetched
-    except:
-        user_latitude = None
-        user_longitude = None
-        user_last_fetch = None 
-    current_lat = user_latitude
-    current_long = user_longitude
     def distance(lat1, lon1, lat2, lon2):
         # The math module contains a function named 
         # radians which converts from degrees to radians. 
@@ -227,12 +198,52 @@ def table(request):
         
         # calculate the result 
         return(c * r) 
-    if current_lat != None and current_long != None:
-        data = sorted(data, key= lambda d: distance(d["latitude"], d["longitude"], current_lat, current_long),reverse = False)
-    user_coordinates = {'channel_id':request.user.id,'status':my_user.status,'username':request.user.username,'latitude':user_latitude,'longitude':user_longitude,'last_fetch':str(user_last_fetch)}
-    all_data = {'global_plotted_coordinates':data,'user_plotted_data':user_coordinates}
-    print(all_data)
-    return Response(all_data)
+    global R
+    data = []
+    all_user = extendedUser.objects.filter(~Q(status = 5))
+    my_user = extendedUser.objects.get(user = request.user)
+    try:
+        user_location_detail = locationDetail.objects.filter(user = request.user).last()
+        user_latitude = user_location_detail.latitude
+        user_longitude = user_location_detail.longitude
+        user_last_fetch = user_location_detail.last_fetched
+    except:
+        user_latitude = None
+        user_longitude = None
+        user_last_fetch = None
+    if  (user_latitude != None and user_longitude != None) or True:#remove or True here 
+        for extend_user in all_user:
+            extend_user_latitude = None
+            extend_user_longitude = None
+            extend_user_last_fetch = None
+            try:
+                if extend_user.user != request.user:
+                    location_detail = locationDetail.objects.filter(user = extend_user.user).last()
+                    extend_user_latitude = location_detail.latitude
+                    extend_user_longitude = location_detail.longitude
+                    extend_user_last_fetch = location_detail.last_fetched
+            except:
+                extend_user_latitude = None
+                extend_user_longitude = None
+                extend_user_last_fetch = None
+
+            user_coordinates = {'channel_id':extend_user.user.id,'status':extend_user.status,'username':extend_user.user.username,'latitude':extend_user_latitude,'longitude':extend_user_longitude,'last_fetch':str(extend_user_last_fetch)}
+            print(extend_user.user.username + " id = " +str(extend_user.user.id))
+            if (extend_user_latitude != None and extend_user_longitude != None) and (distance(user_latitude,user_longitude,extend_user_latitude,extend_user_longitude)< 100 or True):#remove or True here
+                #remove or True above
+                data.append(user_coordinates)
+        current_lat = user_latitude
+        current_long = user_longitude
+        if current_lat != None and current_long != None:
+            data = sorted(data, key= lambda d: distance(d["latitude"], d["longitude"], current_lat, current_long),reverse = False)
+        user_coordinates = {'channel_id':request.user.id,'status':my_user.status,'username':request.user.username,'latitude':user_latitude,'longitude':user_longitude,'last_fetch':str(user_last_fetch)}
+        all_data = {'global_plotted_coordinates':data,'user_plotted_data':user_coordinates}
+        print(all_data)
+        return Response(all_data)
+    else:
+        data = {}
+        data['error'] = "No latitude and longitude of user found"
+        return Response(data= data,status= status.HTTP_400_BAD_REQUEST)
 @api_view(['POST','GET'])
 @permission_classes([IsAuthenticated])
 def admin_add_user_detail(request):# admin only view.Add cutom decorator
@@ -461,3 +472,56 @@ def login(request):
     return render(request,'login.html')
 def add(request):
     return render(request,'admin_add_user.html')
+    #code for single user path tracing. I'll find the chain later
+def distance(lat1, lon1, lat2, lon2):
+    # The math module contains a function named 
+    # radians which converts from degrees to radians. 
+    lon1 = radians(lon1) 
+    lon2 = radians(lon2) 
+    lat1 = radians(lat1) 
+    lat2 = radians(lat2) 
+    
+    # Haversine formula  
+    dlon = lon2 - lon1  
+    dlat = lat2 - lat1 
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+
+    c = 2 * asin(sqrt(a))  
+    
+    # Radius of earth in kilometers. Use 3956 for miles 
+    r = 6371
+    
+    # calculate the result 
+    return(c * r) 
+@api_view(['POST','GET'])
+def contactTracingHelper(request,user_id):
+    try:
+        my_user = User.objects.get(id= user_id)
+    except:
+        dict = {}
+        dict['error'] = "User not found"
+        return Response(data= dict, status= status.HTTP_400_BAD_REQUEST)
+    x,y = contactTracing(my_user)
+    x_data = []
+    for contact_user in x:
+        x_data.append(contact_user.username)
+    dict = {'contact':x_data,'contacts_time_trace':y}
+    return Response(data=dict, status= status.HTTP_200_OK)
+def contactTracing(my_user):#direct contact tracing algo
+    if my_user == None:
+        return ([],[])
+    contacts = []
+    contacts_time_trace = []
+    all_user_locations = locationDetail.objects.filter(user =my_user)
+    for instance_loc in all_user_locations:
+        lower_limit = instance_loc.last_fetched - timedelta(hours=5)
+        upper_limit = instance_loc.last_fetched + timedelta(hours=5)
+        loc_near_instance_loc = locationDetail.objects.filter(~Q(user=my_user),Q(last_fetched__gte= lower_limit),Q(last_fetched__lte= upper_limit))
+        for x_user in loc_near_instance_loc:
+            if  x_user.user != my_user and distance(instance_loc.latitude,instance_loc.longitude,x_user.latitude,x_user.longitude) < 2 :
+                if x_user.user not in contacts:
+                    contacts.append(x_user.user)
+                time_trace = {'user':x_user.user.username,'time_first_contact_index_user':str(instance_loc.last_fetched),'time_first_contact_contacted_user':str(x_user.last_fetched),'index_user_latitude':instance_loc.latitude,'index_user_longitude':instance_loc.longitude,'contact_user_latitude':x_user.latitude,'contact_user_longitude':x_user.longitude}
+                contacts_time_trace.append(time_trace)
+    return (contacts,contacts_time_trace)
+        
