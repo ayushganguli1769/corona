@@ -147,4 +147,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')#server side
 MEDIA_URL = '/media/'#client side
 # Activate Django-Heroku.
 LOGOUT_REDIRECT_URL = '/'
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+#STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

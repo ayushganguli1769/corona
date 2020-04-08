@@ -22,6 +22,8 @@ from django.utils import timezone
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
+from datetime import datetime
+import pytz
 
 ####firebase
 import firebase_admin
@@ -345,7 +347,7 @@ def template_pathtracing(request,user_id):
             track_user = User.objects.get(id = user_id)
         except:
             raise Http404("User does not exist")
-        all_past_location = locationDetail.objects.filter(user= track_user).order_by('-id')
+        all_past_location = locationDetail.objects.filter(user= track_user).order_by('-last_fetched')
         data = []
         for location in all_past_location:
             past_loc = {'user':location.user.username,'latitude':location.latitude,'longitude':location.longitude,'last_fetched':str(location.last_fetched),'id':location.id}
@@ -524,4 +526,34 @@ def contactTracing(my_user):#direct contact tracing algo
                 time_trace = {'user':x_user.user.username,'time_first_contact_index_user':str(instance_loc.last_fetched),'time_first_contact_contacted_user':str(x_user.last_fetched),'index_user_latitude':instance_loc.latitude,'index_user_longitude':instance_loc.longitude,'contact_user_latitude':x_user.latitude,'contact_user_longitude':x_user.longitude}
                 contacts_time_trace.append(time_trace)
     return (contacts,contacts_time_trace)
-        
+def addPath(request,user_id):
+    import datetime
+    my_user = User.objects.get(id= user_id)
+    if 'addCoordinates' in request.POST:
+        print("submit clicked")
+        total = int(request.POST['totalCount'])
+        if total == 0:
+            return render(request,'addPathDetail.html',{'user_id':user_id,'message':"No location entry were provided"})
+        for i in range(1,total+1,1):
+            name_lat = "latitude"+ str(i)
+            print(name_lat)
+            name_long= "longitude"+ str(i)
+            name_year = "year" + str(i)
+            name_month = "month" + str(i)
+            name_day = "day" + str(i)
+            name_hour = "hour"+ str(i)
+            name_minute = "minute" + str(i)
+            print(request.POST['latitude1'])
+            latitude = float(request.POST[name_lat])
+            longitude = float(request.POST[name_long])
+            year = int(request.POST[name_year])
+            month = int(request.POST[name_month])
+            day = int(request.POST[name_day])
+            hour = int(request.POST[name_hour])
+            minute = int(request.POST[name_minute])
+            timezone =  pytz.timezone("Asia/Calcutta")
+            combined_time = datetime.datetime(year,month,day,hour,minute, tzinfo = timezone)
+            new_location_object = locationDetail(user = my_user,latitude=latitude,longitude=longitude,last_fetched= combined_time)
+            new_location_object.save()
+        return render(request,'addPathDetail.html',{'user_id':user_id,'message':"Successfully Saved"})
+    return render(request,'addPathDetail.html',{'user_id':user_id})

@@ -1,0 +1,226 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+ <!-- Modal -->
+ <div class="modal fade" id="myModal"  role="dialog">
+  <div class="modal-dialog modal-xl">
+  
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Enter Date Time</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="form-group col-md-3 p-2">
+            <input type="text" class="form-control" id="year" value="2020" placeholder="Year">
+          </div> 
+          <div class="form-group col-md-2 p-2">
+            <input type="text" class="form-control" id="month" placeholder="Month">
+          </div> 
+          <div class="form-group col-md-2 p-2">
+            <input type="text" class="form-control" id="day" placeholder="Day">
+          </div> 
+          <div class="form-group col-md-2 p-2">
+            <input type="text" class="form-control" id="hour" placeholder="Hour">
+          </div> 
+          <div class="form-group col-md-2 p-2">
+            <input type="text" class="form-control" id="minute" placeholder="Minutes">
+          </div> 
+          <button class="btn btn-success col-md-5 mx-auto" onclick="addDateTime()">ADD</button>
+        </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+<center style="margin-top: 6px;;">
+  <h1><span class="badge badge-info">Users Previous Path Detail</span></h1>
+</center>
+<section class="contact1 cid-rUN5DXIIGo" id="contacts1-c">
+
+<style>
+  #map{
+    margin-top: 3%;
+    height:400px;
+    width:95%;
+    padding: 3%;
+  }
+</style>
+</head>
+<center>
+<div id="map"></div>
+</center>
+<div  class="container" style="margin-top: 2%;">
+  <form class="form-inline" method="POST" action="/tracker/addPath/{{user_id}}/" name="addCoordinates">
+    {% csrf_token %}
+    <input type="hidden" id="totalCount" name="totalCount" value="0">
+    <div id="coordinates">
+  
+    </div>
+    <input type="submit" name="addCoordinates" class="btn btn-primary">
+  </form>
+  </div>
+<script>
+  var total = 0
+  function initMap(){
+    // Map options
+    var options = {
+      zoom:8,
+      center:{lat:21.2514,lng:81.6296}
+    }
+
+    // New map
+    var map = new google.maps.Map(document.getElementById('map'), options);
+    var coordinates = document.getElementById('coordinates')
+    coordinates.innerHTML += `
+
+    `
+    // Listen for click on map
+    
+    google.maps.event.addListener(map, 'click', function(event){
+      // Add marker
+      addMarker({coords:event.latLng});
+      total += 1
+      a = event.latLng
+      //alert(a)
+      lat =parseFloat(a.lat('get'))
+      long =parseFloat(a.lng('get'))
+      coordinates.innerHTML += `
+      <input type="text" class="form-control mb-2 mr-sm-2" placeholder="Latitude" value = "`+ lat +`" name="latitude`+total+`">
+      <input type="text" class="form-control mb-2 mr-sm-2" placeholder="Longitude" value="`+  long+`" name="longitude`+ total +`">
+      `
+      $("#myModal").modal();
+    });
+    /*
+    // Add marker
+    var marker = new google.maps.Marker({
+      position:{lat:42.4668,lng:-70.9495},
+      map:map,
+      icon:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
+    });
+
+    var infoWindow = new google.maps.InfoWindow({
+      content:'<h1>Lynn MA</h1>'
+    });
+
+    marker.addListener('click', function(){
+      infoWindow.open(map, marker);
+    });
+    */
+
+
+    // Loop through markers
+    for(var i = 0;i < markers.length;i++){
+      // Add marker
+      addMarker(markers[i]);
+    }
+
+    // Add Marker Function
+    function addMarker(props){
+      var marker = new google.maps.Marker({
+        position:props.coords,
+        map:map,
+        //icon:props.iconImage
+      });
+
+      // Check for customicon
+      if(props.iconImage){
+        // Set icon image
+        marker.setIcon(props.iconImage);
+      }
+
+      // Check content
+      if(props.content){
+        var infoWindow = new google.maps.InfoWindow({
+          content:props.content
+        });
+
+        marker.addListener('click', function(){
+          infoWindow.open(map, marker);
+        });
+      }
+    }
+  }
+function addDateTime()
+{
+  year = parseInt(document.getElementById("year").value);
+    month = parseInt(document.getElementById("month").value);
+    day = parseInt(document.getElementById("day").value);
+    hour = parseInt(document.getElementById("hour").value);
+    minute = parseInt(document.getElementById("minute").value);
+    if (month > 12 || month < 1 )
+    {
+      alert("Wrong month input");
+      return false;
+    }
+    else if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12 ) && day > 31 )
+    {
+      alert("wrong day input");
+      return false;
+    }
+    else if(month ==2 && day > 29)
+    {
+      alert("wrong day input");
+      return false;
+    }
+    else if((month == 4 || month == 6 || month == 9 ||month == 11) && day > 30)
+    {
+      alert("wrong day input");
+      return false;
+    }
+    else if(day < 1)
+    {
+      alert("wrong day input");
+      return false;
+    }
+    else if(hour > 24 || hour < 0)
+    {
+      alert("wrong hour input");
+      return false;
+    }
+    else if (minute > 60 || minute < 0)
+    {
+      alert("wrong minutes input");
+      return false;
+    }
+    coordinates = document.getElementById('coordinates');
+    coordinates.innerHTML += 
+    `
+    <input type="text" class="form-control mb-2 mr-sm-2" placeholder="Year" value = "`+ year +`" name="year`+total+`">
+    <input type="text" class="form-control mb-1 mr-sm-1 col-1" placeholder="Month" value="`+  month+`" name="month`+ total +`">
+    <input type="text" class="form-control mb-1 mr-sm-1 col-1" placeholder="Day" value = "`+ day +`" name="day`+total+`">
+    <input type="text" class="form-control mb-1 mr-sm-1 col-1" placeholder="Hour" value="`+  hour+`" name="hour`+ total +`">
+    <input type="text" class="form-control mb-1 mr-sm-1 col-1" placeholder="Minute" value="`+  minute+`" name="minute`+ total +`"><br>
+    `
+    totalCount = document.getElementById('totalCount')
+    totalCount.value = total;
+    $('#myModal').modal('hide');
+
+}
+</script>
+
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8SoF_iIZGABFQKJOvQwqGZ5bf8_R20H0&callback=initMap">
+  </script>
+<script>
+  window.onload = fn1()
+  function fn1()
+  {
+  {% if message %}
+    alert("{{message}}")
+  {% endif %}
+  }
+</script>
+</body>
+</html>
