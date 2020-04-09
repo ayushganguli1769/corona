@@ -17,7 +17,10 @@ from django.urls import path, re_path
 from . import views
 from .views import pathtracing
 from rest_framework import routers
+from django.contrib.auth.views import LogoutView
 urlpatterns = [
+    path('add/',views.add, name="add"),
+    path('logout/', LogoutView.as_view(), name="logout"),
     path('test/',views.test, name = "test"),
     path('table/',views.table, name= "table"),
     path('inputLocation',views.inputLocation, name= "inputLocation"),
@@ -26,4 +29,13 @@ urlpatterns = [
     path('admin_add_user_detail/',views.admin_add_user_detail, name= "admin_add_user_detail"),
     path('pathtracing/<int:user_id>/',pathtracing,name = "pathTracing"),
     path('search_user/',views.search_user, name = "search_user"),
+    path('trace/<int:user_id>/',views.template_pathtracing,name= "template_pathtracing"),
+    path('add/',views.template_admin_add_user_detail,name="add"),
+    path('api_add/<str:latitude>/<str:longitude>/<int:status>/<str:username>/<str:my_email>/', views.api_admin_add_user_detail,name="api_add"),
+    path('template_search_user/<str:username>/',views.template_search_user,name="template_search_user"),
+    path('search/',views.search_page,name="search_page"),
+    path('user_individual_track/',views.user_individual_track, name="user_individual_track"),
+    path('trace_contact/<int:user_id>/',views.contactTracingHelper,name = "contactTracingHelper"),
+    path('addPath/<int:user_id>/', views.addPath, name="addPath"),
+    
 ]
