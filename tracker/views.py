@@ -551,7 +551,7 @@ def addPath(request,user_id):
             day = int(request.POST[name_day])
             hour = int(request.POST[name_hour])
             minute = int(request.POST[name_minute])
-            timezone =  pytz.timezone("Asia/Calcutta")
+            timezone =  pytz.timezone("Asia/Kolkata")
             combined_time = datetime.datetime(year,month,day,hour,minute, tzinfo = timezone)
             new_location_object = locationDetail(user = my_user,latitude=latitude,longitude=longitude,last_fetched= combined_time)
             new_location_object.save()
