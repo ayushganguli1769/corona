@@ -65,6 +65,7 @@ import math
 from math import cos, sqrt
 R = 6371000 #radius of the Earth in m
 from math import radians, cos, sin, asin, sqrt 
+from .tasks import xmyContactsTraceFunctionCaller
 @api_view(['POST'])
 def register(request):
     global db
@@ -74,6 +75,13 @@ def register(request):
     my_email = request.data['email']
     my_username = request.data['username']
     my_password = request.data['password']
+    if User.objects.filter(username= my_username).exists():
+        my_user = User.objects.get(username= my_username)
+        if my_user.extendedUser.is_admin_added == True:
+            data = {'sucess':"failed",'error':"Site administrator has already uploaded your case record. Please check with admin"}
+            return Response( data= data,status= status.HTTP_400_BAD_REQUEST)
+        data = {'sucess':"failed",'error':"Username already exists"}
+        return Response( data= data,status= status.HTTP_400_BAD_REQUEST)
     if serialized.is_valid():
         user =User.objects.create_user(email= my_email, username= my_username, password =my_password)
         a = extendedUser.objects.get(user = user)
@@ -83,7 +91,7 @@ def register(request):
         except:
             a.status = None
             a.save()
-        data['sucess'] = "user created"
+        data = {'sucess':"sucess",'error':"None"}
         channel= "channel" + str(user.id)
         print(channel)
         doc_ref = db.collection(channel).document(channel)
@@ -495,6 +503,8 @@ def distance(lat1, lon1, lat2, lon2):
     
     # calculate the result 
     return(c * r) 
+"""
+Not using this code
 @api_view(['POST','GET'])
 def contactTracingHelper(request,user_id):
     try:
@@ -526,6 +536,7 @@ def contactTracing(my_user):#direct contact tracing algo
                 time_trace = {'user':x_user.user.username,'time_first_contact_index_user':str(instance_loc.last_fetched),'time_first_contact_contacted_user':str(x_user.last_fetched),'index_user_latitude':instance_loc.latitude,'index_user_longitude':instance_loc.longitude,'contact_user_latitude':x_user.latitude,'contact_user_longitude':x_user.longitude}
                 contacts_time_trace.append(time_trace)
     return (contacts,contacts_time_trace)
+"""
 def addPath(request,user_id):
     import datetime
     my_user = User.objects.get(id= user_id)
@@ -557,3 +568,36 @@ def addPath(request,user_id):
             new_location_object.save()
         return render(request,'addPathDetail.html',{'user_id':user_id,'message':"Successfully Saved"})
     return render(request,'addPathDetail.html',{'user_id':user_id})
+def contactTracingHelper(request,user_id,parent_node,option):
+    from datetime import datetime
+    user = User.objects.get(id= user_id)
+    user_locations = locationDetail.objects.filter(user= user)
+    User_Match = []
+    timezone =  pytz.timezone("UTC")
+    channel_name = "admin" + str(request.user.id)
+    start_date = datetime(2020, 1, 1, 0, 0, 0, 0,tzinfo = timezone)
+    #start_date= datetime(2020,1,1,0,0,0 tzinfo = timezone)
+    for location in user_locations:
+        user_location_time = location.last_fetched
+        time_diff = (user_location_time - start_date).total_seconds()
+        attribute = [location.latitude,location.longitude,time_diff]
+        User_Match.append(attribute)
+    #print(User_Match)
+    not_user_locations = locationDetail.objects.filter(~Q(user= user))
+    User_Complete = []
+    for location in not_user_locations: 
+        user_location_time = location.last_fetched
+        time_diff = (user_location_time - start_date).total_seconds()
+        attribute = [location.latitude,location.longitude,time_diff,location.user.id]
+        User_Complete.append(attribute)
+    #print(User_Complete)
+    #print(User_Complete)
+    xmyContactsTraceFunctionCaller(User_Match,User_Complete,channel_name,user_id,option)
+    return HttpResponse("ok")
+def contact(request,user_id):
+    if request.user.is_staff:
+        user = User.objects.get(id = user_id)
+        return render(request,'contact.html',{'my_user':user})
+    else:
+        raise Http404("Unathorized")
+    

@@ -1,0 +1,164 @@
+<html>
+  <head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="https://js.pusher.com/5.1/pusher.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    </head>
+  <body>
+      <!--modal start-->
+      <!-- Modal -->
+ <div class="modal fade" id="myModal"  role="dialog">
+  <div class="modal-dialog modal-xl">
+  
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+ 
+        <h4 class="modal-title"><center>Select Options</center></h4>
+      </div>
+      <div class="modal-body">
+        <!--main driver code-->
+        <center>
+          <input type="hidden" id="hiddenUserId">
+        <button type="button" class="btn btn-primary" id="trace">Trace User Contacts</button>
+        <button type="button" class="btn btn-success" onclick="return findMeetingPoint()">Find Meeting Points</button>
+      </center>
+
+      </div>
+    </div>
+    
+  </div>
+</div>
+      <!--modal end-->`
+      <div id="test"></div>
+    <div id="chart_div"></div>
+    <div id="table_div"></div>
+    <script type="text/javascript">
+    var org_data = [
+          [{'v':'{{my_user.id}}', 'f':'{{my_user.username}}'},'',''],
+        ]
+    //Pusher client over here
+        // Enable pusher logging - don't include this in production
+        //Pusher.logToConsole = true;
+
+        var pusher = new Pusher('c73ea8196f369f3e7364', {
+        cluster: 'ap2',
+        forceTLS: true
+        });
+        var channel = pusher.subscribe("admin{{request.user.id}}");
+    channel.bind('my-event', function(my_data) {
+      //alert(data['data'][0][0])
+      //addData()
+      unique_contacts = my_data['unique_contacts']
+      parent_id =  JSON.stringify(my_data['parent_id'])
+      if (my_data['option'] == 1)
+      {
+
+          for(i=0; i< unique_contacts.length;i++)
+          {
+            id_contact = JSON.stringify(unique_contacts[i][0])
+            name_contact = unique_contacts[i][1]
+            //alert(unique_contacts[i][0])
+            //alert(unique_contacts[i][1])
+            org_data.push([{'v':JSON.stringify(unique_contacts[i][0]), 'f':unique_contacts[i][1]},JSON.stringify(my_data['parent_id']),''])
+          }
+          drawChart()
+      }
+
+        var test = document.getElementById('test')
+        test.innerHTML = JSON.stringify(my_data)
+        //addData();
+    });
+    //end of pusher
+    function meetingPoint()
+    {
+      user_id = document.getElementById('hiddenUserId').value;
+      //alert(user_id);
+      //ajax call
+      URL = "/tracker/trace_contact/"+ user_id + "/{{request.user.id}}/" + "2/"
+        //alert(URL)
+        var req = new XMLHttpRequest();
+            req.onreadystatechange = function(obj) {
+                if (this.readyState == 4 && this.status == 200) {
+                  $('#myModal').modal('hide');
+                    alert("added");
+                    
+                }
+                else if(this.status == 400)
+                {
+                    alert("fail. Check if username already exists")
+                }
+            };
+            req.open("GET", URL, true);
+            req.send();
+            return true;
+    }
+ function traceContact()
+    {
+      user_id = document.getElementById('hiddenUserId').value;
+      //alert(user_id);
+      //ajax call
+      URL = "/tracker/trace_contact/"+ user_id + "/{{request.user.id}}/" + "1/"
+        //alert(URL)
+        var req = new XMLHttpRequest();
+            req.onreadystatechange = function(obj) {
+                if (this.readyState == 4 && this.status == 200) {
+                  $('#myModal').modal('hide');
+                    alert("added");
+                    
+                }
+                else if(this.status == 400)
+                {
+                    alert("fail. Check if username already exists")
+                }
+            };
+            req.open("GET", URL, true);
+            req.send();
+            return true;
+    }
+      google.charts.load('current', {packages:["orgchart"]});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = new google.visualization.DataTable(document.getElementById('table_div'));
+        data.addColumn('string', 'Name');
+        data.addColumn('string', 'Manager');
+        data.addColumn('string', 'ToolTip');
+        trace_button = document.getElementById('trace');
+        trace_button.addEventListener("click", traceContact);
+        // For each orgchart box, provide the name, manager, and tooltip to show.
+        data.addRows(org_data);
+
+        // Create the chart.
+        var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+        // Draw the chart, setting the allowHtml option to true for the tooltips.
+        chart.draw(data, {'allowHtml':true});
+        google.visualization.events.addListener(chart, 'select', function() {
+            var selection = chart.getSelection();
+        if (selection.length > 0) {
+            //alert(data.getValue(selection[0].row, 0));
+            user_id = data.getValue(selection[0].row, 0);
+            //alert(user_id)
+            hiddenUserId =document.getElementById('hiddenUserId');
+            hiddenUserId.value = user_id;
+            $("#myModal").modal();
+
+        }
+});
+   
+      }
+
+
+   </script>
+  </body>
+</html>

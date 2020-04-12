@@ -13,6 +13,7 @@ class extendedUser(models.Model):
     ]
     status = models.IntegerField(choices= user_status_choices,blank= True, null= True)
     is_admin = models.BooleanField(default= False)
+    is_admin_added = models.BooleanField(default=False)
     def __str__(self):
         return self.user.username + "'s extended user class"
 @receiver(post_save, sender=User)

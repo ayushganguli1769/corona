@@ -148,3 +148,4 @@ MEDIA_URL = '/media/'#client side
 # Activate Django-Heroku.
 LOGOUT_REDIRECT_URL = '/'
 #STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+BACKGROUND_TASK_RUN_ASYNC = True
