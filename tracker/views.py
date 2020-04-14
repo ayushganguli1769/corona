@@ -544,7 +544,7 @@ def addPath(request,user_id):
         print("submit clicked")
         total = int(request.POST['totalCount'])
         if total == 0:
-            return render(request,'addPathDetail.html',{'user_id':user_id,'message':"No location entry were provided"})
+            return render(request,'addPathDetail.html',{'user_id':user_id,'message':"No location entry were provided",'my_user':my_user})
         for i in range(1,total+1,1):
             name_lat = "latitude"+ str(i)
             print(name_lat)
@@ -566,8 +566,8 @@ def addPath(request,user_id):
             combined_time = datetime.datetime(year,month,day,hour,minute, tzinfo = timezone)
             new_location_object = locationDetail(user = my_user,latitude=latitude,longitude=longitude,last_fetched= combined_time)
             new_location_object.save()
-        return render(request,'addPathDetail.html',{'user_id':user_id,'message':"Successfully Saved"})
-    return render(request,'addPathDetail.html',{'user_id':user_id})
+        return render(request,'addPathDetail.html',{'user_id':user_id,'message':"Successfully Saved",'my_user':my_user})
+    return render(request,'addPathDetail.html',{'user_id':user_id,'my_user':my_user})
 def contactTracingHelper(request,user_id,parent_node,option):
     from datetime import datetime
     user = User.objects.get(id= user_id)

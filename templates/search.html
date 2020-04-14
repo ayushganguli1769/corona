@@ -203,6 +203,8 @@ td.text-right {
   <tr>
   <th class="text-left">Username</th>
   <th class="text-left">Type</th>
+  <th>Add User Path</th>
+  <th>Trace User Contacts</th>
   </tr>
   </thead>
   <tbody class="table-hover" id="myTableRow">
@@ -242,6 +244,8 @@ td.text-right {
                 rows.innerHTML += `
                 <tr>
                 <td><a href="/tracker/trace/`+data[i]['id']+`">`+ data[i]['username']+ `</a></td><td>`+ data[i]['status'] +`</td>
+                <td><a href="/tracker/contactTrace/`+data[i]['id']+`">`+ data[i]['username']+ `'s Contact Trace</a></td>
+                <td><a href="/tracker/addPath/`+data[i]['id']+`">Add `+ data[i]['username']+ `'s Path</a></td>
                 </tr>
                 `
               }

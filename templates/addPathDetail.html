@@ -45,7 +45,7 @@
   </div>
 </div>
 <center style="margin-top: 6px;;">
-  <h1><span class="badge badge-info">Users Previous Path Detail</span></h1>
+  <h1><span class="badge badge-info">{{my_user.username}}'s Previous Path Detail</span></h1>
 </center>
 <section class="contact1 cid-rUN5DXIIGo" id="contacts1-c">
 
@@ -69,6 +69,7 @@
   
     </div>
     <input type="submit" name="addCoordinates" class="btn btn-primary">
+    <a href="/tracker/search/" class="btn btn-danger" >Back to Search Page</a>
   </form>
   </div>
 <script>
@@ -204,7 +205,6 @@ function addDateTime()
     <input type="text" class="form-control mb-1 mr-sm-1 col-1" placeholder="Minute" value="`+  minute+`" name="minute`+ total +`"><br>
     `
     totalCount = document.getElementById('totalCount')
-    totalCount.value = total;
     $('#myModal').modal('hide');
 
 }
