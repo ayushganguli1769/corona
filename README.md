@@ -3,7 +3,7 @@
 ## Current Status: 
 ### Code hasn't been merged to master. Latest code currently at <b>pubnub-sockets</b> branch
 ### Hosted at: <a href="http://tuhina840.pythonanywhere.com/">Website</a> 
-<p>This directory contains the API and administrative panel. We are going to shift hosting service to AWS as pythonanywhere doesn't support background tasks.<br>
+<p>This directory contains the API and administrative panel. We are going to shift hosting service to AWS as pythonanywhere doesn't support background tasks.<br></p>
 ### APK URL: <a href="https://drive.google.com/open?id=1O_7vBoedff12gYB52rF6SnvbxWApdv0y">Google Drive Apk link</a>
 <p>Android Application Google Drive link </p>
 Covid Tracking Application<br/>
