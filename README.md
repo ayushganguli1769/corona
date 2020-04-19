@@ -29,7 +29,7 @@ Edit database configuration at corona->setting.py line 87
   python manage.py runserver
 ```
 
-</br> On another terminal run the command
+</br> On another terminal run the command after activating virtual environment
 ```bash
   python manage.py process_tasks
   
