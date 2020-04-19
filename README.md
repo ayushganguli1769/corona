@@ -21,6 +21,7 @@ Edit database configuration at corona->setting.py line 87
 ```bash
   pip install virtualenv
   virtualenv .
+  .\scripts\activate
   pip install -r requirements.txt
   cd corona
   python manage.py migrate
