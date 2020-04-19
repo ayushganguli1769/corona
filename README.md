@@ -2,7 +2,8 @@
 ## Android Repository at <a href="https://github.com/ammar-alavi10/Covid19_tracker" target="_blank">Android Repository</a>
 # More Links<br>
 Android APK Demo: <a href="https://drive.google.com/file/d/1VUhCmWstbAH-Pf2QXOL6mYdCD0-LoY0e/view?usp=sharing">App Demo</a>
-Website Demo:<a href="https://drive.google.com/open?id=1J7nq2eeIXKEz7gvgMhqdnNCNtvbmbc8B">Website Demo</a>
+Website Demo:<a href="https://drive.google.com/open?id=1J7nq2eeIXKEz7gvgMhqdnNCNtvbmbc8B">Website Demo</a></br>
+Pitch: <a href="https://drive.google.com/open?id=1UJC13KtWxZMFAZw0EH10UNJxeRzzmOF7">Powerpoint Presentation</a>
 
 ## Current Status: 
 ### Code hasn't been merged to master. Latest code currently at <b>pubnub-sockets</b> branch
