@@ -25,7 +25,7 @@ Edit database configuration at corona->setting.py line 87
   pip install -r requirements.txt
   cd corona
   python manage.py migrate
-  python manage.py createsuper user
+  python manage.py createsuperuser
   python manage.py runserver
 ```
 
