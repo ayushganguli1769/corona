@@ -1,0 +1,8 @@
+.scrollable {
+    height: 600px;
+    overflow: scroll;
+}
+.sticky {
+    display: block;
+    position: relative;
+  }
