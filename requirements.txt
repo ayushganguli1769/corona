@@ -35,7 +35,7 @@ mysqlclient==1.4.6
 ndg-httpsclient==0.5.1
 Pillow==7.0.0
 pipenv==2018.11.26
-protobuf==3.11.3
+protobuf==3.18.3
 psycopg2==2.8.4
 pubnub==4.0.0
 pusher==2.1.4
